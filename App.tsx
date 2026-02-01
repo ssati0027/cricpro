@@ -31,7 +31,6 @@ const App: React.FC = () => {
             const existingIds = new Set(existingMatches.map(m => m.id));
             const matchesToUpdate: Match[] = [];
             
-            // Map sheet rows to objects
             const latestStates: Record<string, any> = {};
             sheetData.forEach(row => {
               const id = row.MatchID || row.matchId;
@@ -171,7 +170,9 @@ const App: React.FC = () => {
           <div className="flex-1 overflow-y-auto max-w-4xl mx-auto w-full space-y-4">
             <div className="flex justify-between items-center px-1">
               <h2 className="text-2xl font-bebas tracking-widest text-emerald-400">Match Lobby</h2>
-              <button onClick={() => setView('create')} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-xs tracking-widest transition-all shadow-lg shadow-emerald-950/40">NEW MATCH</button>
+              <div className="flex gap-2">
+                <button onClick={() => setView('create')} className="bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-xs tracking-widest transition-all shadow-lg shadow-emerald-950/40">NEW MATCH</button>
+              </div>
             </div>
             <MatchList matches={state.matches} onSelect={handleSelectMatch} />
           </div>
