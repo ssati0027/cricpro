@@ -279,68 +279,68 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
   const isCreaseReady = currentInnings.currentBatsmenNames.length === 2 && !!currentInnings.currentBowlerName;
 
   return (
-    <div className="flex flex-col gap-2 flex-1 h-full py-1 overflow-hidden">
+    <div className="flex flex-col gap-1.5 flex-1 h-full py-0.5 overflow-hidden">
       {/* Top Controls Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0 px-1 min-h-[44px]">
+      <div className="grid grid-cols-4 gap-1 shrink-0 px-1 min-h-[38px]">
         <button 
           onClick={() => setShowPlayerModal('batsman')} 
-          className={`py-2 rounded-xl text-[7px] font-bold uppercase tracking-widest border transition-all flex items-center justify-center text-center ${currentInnings.currentBatsmenNames.length < 2 ? 'bg-amber-900/40 border-amber-500/40 text-amber-400 animate-pulse' : 'bg-emerald-900/40 border-emerald-500/20 text-emerald-400'}`}
+          className={`py-1.5 rounded-lg text-[7px] font-bold uppercase tracking-widest border transition-all flex items-center justify-center text-center ${currentInnings.currentBatsmenNames.length < 2 ? 'bg-amber-900/40 border-amber-500/40 text-amber-400 animate-pulse' : 'bg-emerald-900/40 border-emerald-500/20 text-emerald-400'}`}
         >
            {currentInnings.currentBatsmenNames.length < 2 ? 'Add' : 'Swap'} Batter
         </button>
         
         <button 
           onClick={handleManualSwap}
-          className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 active:scale-90 transition-all hover:bg-emerald-500/20"
+          className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400 active:scale-90 transition-all hover:bg-emerald-500/20"
           title="Swap Strike"
         >
-          <span className="text-base">⇄</span>
+          <span className="text-sm">⇄</span>
         </button>
 
         <button 
           onClick={() => setShowPlayerModal('bowler')} 
-          className={`py-2 rounded-xl text-[7px] font-bold uppercase tracking-widest border transition-all flex items-center justify-center text-center ${!currentInnings.currentBowlerName ? 'bg-amber-900/40 border-amber-500/40 text-amber-400 animate-pulse' : 'bg-emerald-900/40 border-emerald-500/20 text-emerald-400'}`}
+          className={`py-1.5 rounded-lg text-[7px] font-bold uppercase tracking-widest border transition-all flex items-center justify-center text-center ${!currentInnings.currentBowlerName ? 'bg-amber-900/40 border-amber-500/40 text-amber-400 animate-pulse' : 'bg-emerald-900/40 border-emerald-500/20 text-emerald-400'}`}
         >
           {currentInnings.currentBowlerName ? 'Change' : 'Add'} Bowler
         </button>
         
-        <button onClick={handleUndo} className="bg-slate-800/60 py-2 rounded-xl text-[7px] font-bold uppercase border border-white/5 text-slate-500 hover:text-white transition-all flex items-center justify-center">Undo</button>
+        <button onClick={handleUndo} className="bg-slate-800/60 py-1.5 rounded-lg text-[7px] font-bold uppercase border border-white/5 text-slate-500 hover:text-white transition-all flex items-center justify-center">Undo</button>
       </div>
 
       {!isCreaseReady && match.status === 'live' && (
-        <div className="bg-amber-500/10 border border-amber-500/20 mx-1 p-1 rounded-xl text-center shrink-0">
-          <p className="text-[8px] font-bold text-amber-500 uppercase tracking-widest">⚠️ CREASE NOT READY</p>
+        <div className="bg-amber-500/10 border border-amber-500/20 mx-1 p-0.5 rounded-lg text-center shrink-0">
+          <p className="text-[7px] font-bold text-amber-500 uppercase tracking-widest">⚠️ CREASE NOT READY</p>
         </div>
       )}
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col gap-2 min-h-0 transition-opacity ${( !isCreaseReady || match.status !== 'live' ) ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`flex-1 flex flex-col gap-1.5 min-h-0 transition-opacity ${( !isCreaseReady || match.status !== 'live' ) ? 'opacity-30 pointer-events-none' : ''}`}>
         {/* Core Runs Grid */}
-        <div className="grid grid-cols-4 gap-2 px-1 shrink-0">
+        <div className="grid grid-cols-4 gap-1.5 px-1 shrink-0">
           {[0, 1, 2, 3].map(r => (
-            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-slate-800/80 aspect-[1.1] rounded-2xl font-bebas text-2xl border border-white/5 shadow-xl transition-all active:scale-90 hover:bg-slate-700">{r}</button>
+            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-slate-800/80 aspect-[1.2] rounded-xl font-bebas text-xl border border-white/5 shadow-md transition-all active:scale-90">{r}</button>
           ))}
           {[4, 6].map(r => (
-            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-emerald-900/60 aspect-[1.1] rounded-2xl font-bebas text-2xl border border-emerald-500/30 text-emerald-400 shadow-xl transition-all active:scale-90 hover:bg-emerald-800/80">{r}</button>
+            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-emerald-900/60 aspect-[1.2] rounded-xl font-bebas text-xl border border-emerald-500/30 text-emerald-400 shadow-md active:scale-90">{r}</button>
           ))}
-          <button onClick={() => setWicketModal(true)} className="bg-red-950/40 aspect-[1.1] rounded-2xl font-bebas text-2xl border border-red-500/30 text-red-500 shadow-xl active:scale-90 hover:bg-red-900/60">OUT</button>
+          <button onClick={() => setWicketModal(true)} className="bg-red-950/40 aspect-[1.2] rounded-xl font-bebas text-xl border border-red-500/30 text-red-500 shadow-md active:scale-90">OUT</button>
           <button 
             onClick={() => { setOversInput(match.totalOvers.toString()); setShowOversModal(true); }} 
-            className="bg-slate-800/40 aspect-[1.1] rounded-2xl flex flex-col items-center justify-center border border-dashed border-slate-600 active:scale-95"
+            className="bg-slate-800/40 aspect-[1.2] rounded-xl flex flex-col items-center justify-center border border-dashed border-slate-600 active:scale-95"
           >
-             <span className="text-[6px] font-bold uppercase">Adjust</span>
-             <span className="font-bebas text-xs">OVERS</span>
+             <span className="text-[5px] font-bold uppercase">Adjust</span>
+             <span className="font-bebas text-[10px]">OVERS</span>
           </button>
         </div>
 
         {/* Extras Registry */}
-        <div className="bg-black/40 p-3 rounded-2xl border border-white/5 mx-1 flex-1 flex flex-col justify-center min-h-0">
-           <p className="text-[7px] font-bold uppercase tracking-[0.3em] text-slate-500 text-center mb-2">Extras Registry</p>
-           <div className="grid grid-cols-2 gap-2 flex-1 min-h-0">
-              <button onClick={() => setExtraRunSelector({type: 'wide'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">WIDE</span></button>
-              <button onClick={() => setExtraRunSelector({type: 'noball'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">NO BALL</span></button>
-              <button onClick={() => setExtraRunSelector({type: 'bye'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">BYES</span></button>
-              <button onClick={() => setExtraRunSelector({type: 'legbye'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">LEG BYES</span></button>
+        <div className="bg-black/40 p-2 rounded-xl border border-white/5 mx-1 flex-1 flex flex-col justify-center min-h-0">
+           <p className="text-[6px] font-bold uppercase tracking-[0.3em] text-slate-500 text-center mb-1">Extras</p>
+           <div className="grid grid-cols-2 gap-1.5 flex-1 min-h-0">
+              <button onClick={() => setExtraRunSelector({type: 'wide'})} className="bg-slate-800/60 rounded-lg flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all py-1.5"><span className="text-[8px] font-bebas text-emerald-400 tracking-widest">WIDE</span></button>
+              <button onClick={() => setExtraRunSelector({type: 'noball'})} className="bg-slate-800/60 rounded-lg flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all py-1.5"><span className="text-[8px] font-bebas text-emerald-400 tracking-widest">NO BALL</span></button>
+              <button onClick={() => setExtraRunSelector({type: 'bye'})} className="bg-slate-800/60 rounded-lg flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all py-1.5"><span className="text-[8px] font-bebas text-emerald-400 tracking-widest">BYES</span></button>
+              <button onClick={() => setExtraRunSelector({type: 'legbye'})} className="bg-slate-800/60 rounded-lg flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all py-1.5"><span className="text-[8px] font-bebas text-emerald-400 tracking-widest">LEG BYES</span></button>
            </div>
         </div>
       </div>
@@ -348,19 +348,18 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
       {/* Adjust Overs Modal */}
       {showOversModal && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[450] flex items-center justify-center p-8">
-           <div className="bg-slate-900 p-8 rounded-[2rem] w-full max-w-[280px] border border-white/10 shadow-2xl">
-              <h4 className="text-xl font-bebas text-emerald-400 mb-2 uppercase tracking-widest text-center">Adjust Match Overs</h4>
-              <p className="text-[9px] text-slate-500 font-bold uppercase mb-6 tracking-widest text-center">Update total match duration</p>
+           <div className="bg-slate-900 p-6 rounded-3xl w-full max-w-[280px] border border-white/10 shadow-2xl">
+              <h4 className="text-lg font-bebas text-emerald-400 mb-2 uppercase tracking-widest text-center">Adjust Overs</h4>
               <input 
                 type="number"
                 autoFocus
                 value={oversInput}
                 onChange={(e) => setOversInput(e.target.value)}
-                className="w-full bg-black/40 border border-slate-800 rounded-xl px-4 py-4 mb-6 text-center text-xl font-bebas text-white focus:ring-1 focus:ring-emerald-500 outline-none"
+                className="w-full bg-black/40 border border-slate-800 rounded-xl px-4 py-3 mb-4 text-center text-xl font-bebas text-white focus:ring-1 focus:ring-emerald-500 outline-none"
               />
-              <div className="grid grid-cols-2 gap-3">
-                 <button onClick={() => setShowOversModal(false)} className="py-4 bg-slate-800/40 rounded-xl font-bold text-[9px] uppercase tracking-widest text-slate-500">Cancel</button>
-                 <button onClick={handleAdjustOvers} className="py-4 bg-emerald-600 rounded-xl font-bold text-[9px] uppercase tracking-widest text-white shadow-lg">Confirm</button>
+              <div className="grid grid-cols-2 gap-2">
+                 <button onClick={() => setShowOversModal(false)} className="py-3 bg-slate-800/40 rounded-xl font-bold text-[8px] uppercase tracking-widest text-slate-500">Cancel</button>
+                 <button onClick={handleAdjustOvers} className="py-3 bg-emerald-600 rounded-xl font-bold text-[8px] uppercase tracking-widest text-white shadow-lg">Confirm</button>
               </div>
            </div>
         </div>
@@ -369,14 +368,14 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
       {/* Attribution Modal */}
       {attributionModal && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[400] flex items-center justify-center p-8 text-center">
-          <div className="bg-slate-900 p-8 rounded-[2rem] w-full max-w-[300px] border border-white/10 shadow-2xl">
-            <h4 className="text-xl font-bebas text-emerald-400 mb-2 uppercase tracking-widest">{attributionModal.type} Runs</h4>
-            <p className="text-[10px] text-slate-500 font-bold uppercase mb-8">Attribute {attributionModal.runs} runs to:</p>
-            <div className="grid gap-3 mb-6">
-              <button onClick={() => validateAndAddBall({runs: attributionModal.runs, isExtra: true, extraType: attributionModal.type, runsToBatsman: true})} className="bg-emerald-600/20 border border-emerald-500/40 py-4 rounded-xl font-bold text-xs uppercase tracking-widest text-emerald-400">Batter Score</button>
-              <button onClick={() => validateAndAddBall({runs: attributionModal.runs, isExtra: true, extraType: attributionModal.type, runsToBatsman: false})} className="bg-slate-800 border border-white/5 py-4 rounded-xl font-bold text-xs uppercase tracking-widest text-slate-300">Team Extras</button>
+          <div className="bg-slate-900 p-6 rounded-3xl w-full max-w-[300px] border border-white/10 shadow-2xl">
+            <h4 className="text-lg font-bebas text-emerald-400 mb-1 uppercase tracking-widest">{attributionModal.type} Runs</h4>
+            <p className="text-[8px] text-slate-500 font-bold uppercase mb-4">Attribute {attributionModal.runs} runs to:</p>
+            <div className="grid gap-2 mb-4">
+              <button onClick={() => validateAndAddBall({runs: attributionModal.runs, isExtra: true, extraType: attributionModal.type, runsToBatsman: true})} className="bg-emerald-600/20 border border-emerald-500/40 py-3 rounded-xl font-bold text-[9px] uppercase tracking-widest text-emerald-400">Batter Score</button>
+              <button onClick={() => validateAndAddBall({runs: attributionModal.runs, isExtra: true, extraType: attributionModal.type, runsToBatsman: false})} className="bg-slate-800 border border-white/5 py-3 rounded-xl font-bold text-[9px] uppercase tracking-widest text-slate-300">Team Extras</button>
             </div>
-            <button onClick={() => setAttributionModal(null)} className="text-[10px] text-slate-600 uppercase font-bold tracking-widest">Cancel</button>
+            <button onClick={() => setAttributionModal(null)} className="text-[9px] text-slate-600 uppercase font-bold tracking-widest">Cancel</button>
           </div>
         </div>
       )}
@@ -384,10 +383,10 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
       {/* Extra Run Selector */}
       {extraRunSelector && !attributionModal && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[350] flex items-center justify-center p-8 text-center">
-          <div className="bg-slate-900 p-8 rounded-[2rem] w-full max-w-[280px] border border-white/10 shadow-2xl">
-            <h4 className="text-xl font-bebas text-emerald-400 mb-1 uppercase tracking-widest">{extraRunSelector.type}</h4>
-            <p className="text-[8px] text-slate-500 font-bold uppercase mb-6">Additional runs?</p>
-            <div className="grid grid-cols-3 gap-2 mb-8">
+          <div className="bg-slate-900 p-6 rounded-3xl w-full max-w-[280px] border border-white/10 shadow-2xl">
+            <h4 className="text-lg font-bebas text-emerald-400 mb-1 uppercase tracking-widest">{extraRunSelector.type}</h4>
+            <p className="text-[8px] text-slate-500 font-bold uppercase mb-4">Additional runs?</p>
+            <div className="grid grid-cols-3 gap-2 mb-4">
               {[0, 1, 2, 3, 4, 6].map(num => (
                 <button 
                   key={num} 
@@ -395,13 +394,13 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
                     if (extraRunSelector.type === 'wide') validateAndAddBall({runs: num, isExtra: true, extraType: 'wide', runsToBatsman: false});
                     else setAttributionModal({ type: extraRunSelector.type, runs: num });
                   }} 
-                  className="bg-slate-800 h-12 rounded-xl font-bebas text-xl border border-white/5 hover:bg-emerald-900/40"
+                  className="bg-slate-800 h-10 rounded-lg font-bebas text-lg border border-white/5"
                 >
                   {num}
                 </button>
               ))}
             </div>
-            <button onClick={() => setExtraRunSelector(null)} className="w-full py-4 bg-slate-800/40 rounded-xl font-bold text-[9px] uppercase tracking-widest text-slate-500">Back</button>
+            <button onClick={() => setExtraRunSelector(null)} className="w-full py-3 bg-slate-800/40 rounded-xl font-bold text-[8px] uppercase tracking-widest text-slate-500">Back</button>
           </div>
         </div>
       )}
@@ -409,11 +408,11 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
       {/* Wicket Modal */}
       {wicketModal && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[300] flex items-center justify-center p-6 text-center">
-          <div className="bg-slate-900 p-8 rounded-[2.5rem] w-full max-w-[340px] border border-white/10 shadow-2xl">
+          <div className="bg-slate-900 p-6 rounded-3xl w-full max-w-[340px] border border-white/10 shadow-2xl">
             {!fielderPrompt ? (
               <>
-                <h4 className="text-xl font-bebas text-red-500 mb-8 uppercase tracking-[0.2em]">How's That?!</h4>
-                <div className="grid grid-cols-2 gap-2 mb-8">
+                <h4 className="text-lg font-bebas text-red-500 mb-4 uppercase tracking-[0.2em]">How's That?!</h4>
+                <div className="grid grid-cols-2 gap-2 mb-4">
                   {['Bowled', 'Caught', 'LBW', 'Run Out', 'Stumped', 'Hit Wicket', 'C & B'].map(type => (
                     <button 
                       key={type}
@@ -422,40 +421,34 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
                         else if (type === 'C & B') validateAndAddBall({isWicket: true, wicketType: 'Caught', fielderName: currentInnings.currentBowlerName!});
                         else validateAndAddBall({isWicket: true, wicketType: type});
                       }}
-                      className="bg-slate-800 py-3 rounded-xl font-bold text-[9px] uppercase tracking-widest border border-white/5"
+                      className="bg-slate-800 py-2 rounded-lg font-bold text-[8px] uppercase tracking-widest border border-white/5"
                     >
                       {type}
                     </button>
                   ))}
                 </div>
-                <button onClick={() => setWicketModal(false)} className="w-full py-4 bg-slate-800/40 rounded-xl font-bold text-[9px] uppercase tracking-widest text-slate-500">Cancel</button>
+                <button onClick={() => setWicketModal(false)} className="w-full py-3 bg-slate-800/40 rounded-xl font-bold text-[8px] uppercase tracking-widest text-slate-500">Cancel</button>
               </>
             ) : (
-              <div className="space-y-5 text-left">
-                <h4 className="text-lg font-bebas text-emerald-400 uppercase tracking-widest text-center">{fielderPrompt.type}</h4>
-                <div className="space-y-1">
-                  <p className="text-[7px] font-bold text-slate-600 uppercase tracking-widest">Fielder Name</p>
-                  <input 
-                    autoFocus value={fielderName} onChange={(e) => setFielderName(e.target.value)}
-                    placeholder="Enter fielder name..."
-                    className="w-full bg-black/50 border border-slate-700 rounded-xl p-3 text-xs focus:ring-1 focus:ring-emerald-500 outline-none text-white tracking-widest"
-                  />
-                </div>
+              <div className="space-y-3 text-left">
+                <h4 className="text-md font-bebas text-emerald-400 uppercase tracking-widest text-center">{fielderPrompt.type}</h4>
+                <input 
+                  autoFocus value={fielderName} onChange={(e) => setFielderName(e.target.value)}
+                  placeholder="Fielder name..."
+                  className="w-full bg-black/50 border border-slate-700 rounded-xl p-2.5 text-xs outline-none text-white"
+                />
                 {fielderPrompt.type === 'Run Out' && (
-                  <div className="space-y-2">
-                     <p className="text-[7px] font-bold text-slate-600 uppercase tracking-widest">Runs Completed</p>
-                     <div className="grid grid-cols-4 gap-1.5">
-                        {[0,1,2,3].map(n => (
-                          <button key={n} onClick={() => setFielderPrompt({...fielderPrompt, runs: n})} className={`py-2 rounded-lg font-bebas text-lg border ${fielderPrompt.runs === n ? 'bg-emerald-600 border-emerald-400' : 'bg-slate-800 border-white/5'}`}>{n}</button>
-                        ))}
-                     </div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {[0,1,2,3].map(n => (
+                      <button key={n} onClick={() => setFielderPrompt({...fielderPrompt, runs: n})} className={`py-1.5 rounded-lg font-bebas text-lg border ${fielderPrompt.runs === n ? 'bg-emerald-600' : 'bg-slate-800'}`}>{n}</button>
+                    ))}
                   </div>
                 )}
-                <div className="flex gap-3 pt-2">
-                  <button onClick={() => setFielderPrompt(null)} className="flex-1 py-3 bg-slate-800 rounded-xl text-[8px] font-bold uppercase text-slate-400">Back</button>
+                <div className="flex gap-2 pt-2">
+                  <button onClick={() => setFielderPrompt(null)} className="flex-1 py-2.5 bg-slate-800 rounded-lg text-[8px] font-bold uppercase">Back</button>
                   <button onClick={() => {
                     validateAndAddBall({isWicket: true, wicketType: fielderPrompt.type, fielderName: fielderName || 'Fielder', runs: fielderPrompt.runs || 0});
-                  }} className="flex-1 py-3 bg-emerald-600 rounded-xl text-[8px] font-bold uppercase text-white shadow-xl">Confirm</button>
+                  }} className="flex-1 py-2.5 bg-emerald-600 rounded-lg text-[8px] font-bold uppercase">Confirm</button>
                 </div>
               </div>
             )}
