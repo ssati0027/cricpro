@@ -38,14 +38,14 @@ const MatchList: React.FC<MatchListProps> = ({ matches, onSelect }) => {
             <div className="flex justify-between items-end gap-4">
               <div className="space-y-4 flex-1">
                 <div className="flex justify-between items-center">
-                  <span className="font-bebas text-2xl tracking-wide group-hover:text-emerald-400 transition-colors">{match.team1}</span>
+                  <span className="font-bold text-xl tracking-tight group-hover:text-emerald-400 transition-colors text-white">{match.team1}</span>
                   <div className="text-right">
                     <span className="text-2xl font-bebas text-white">{inn1.runs}/{inn1.wickets}</span>
                     <span className="text-[9px] text-slate-500 font-bold ml-2">({Math.floor(inn1.balls/6)}.{inn1.balls%6})</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-bebas text-2xl tracking-wide text-slate-300">{match.team2}</span>
+                  <span className="font-bold text-xl tracking-tight text-slate-300 group-hover:text-emerald-300 transition-colors">{match.team2}</span>
                   <div className="text-right">
                     {inn2 ? (
                       <>

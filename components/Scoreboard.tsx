@@ -35,7 +35,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ match }) => {
         <div className="bg-emerald-950/20 px-4 py-3 rounded-2xl flex justify-between items-center border border-emerald-500/10 mx-1">
            <div className="min-w-0">
               <p className="text-[7px] text-slate-500 font-bold uppercase tracking-[0.3em] mb-1">Batting Performance</p>
-              <h3 className="text-lg font-bebas text-white tracking-wide truncate">{inn.battingTeam}</h3>
+              <h3 className="text-lg font-bold text-white tracking-tight truncate">{inn.battingTeam}</h3>
            </div>
            <div className="text-right shrink-0">
               <p className="text-2xl font-bebas text-emerald-400 leading-none">{inn.runs}-{inn.wickets}</p>

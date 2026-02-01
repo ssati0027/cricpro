@@ -18,8 +18,8 @@ const CreateMatch: React.FC<CreateMatchProps> = ({ onSubmit, onCancel }) => {
     e.preventDefault();
     if (!team1 || !team2 || !password) return alert("Please fill all required fields");
 
-    const t1Name = team1.trim().toUpperCase();
-    const t2Name = team2.trim().toUpperCase();
+    const t1Name = team1.trim();
+    const t2Name = team2.trim();
     const battTeam = battingFirst === '1' ? t1Name : t2Name;
     const bowlTeam = battingFirst === '1' ? t2Name : t1Name;
 
@@ -60,16 +60,16 @@ const CreateMatch: React.FC<CreateMatchProps> = ({ onSubmit, onCancel }) => {
               <label className="text-[6px] font-black text-emerald-500/60 uppercase tracking-widest px-1">HOST TEAM</label>
               <input 
                 value={team1} onChange={e => setTeam1(e.target.value)}
-                className="w-full bg-black/60 border border-white/5 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all text-[10px] font-bold tracking-widest uppercase placeholder-slate-800"
-                placeholder="TEAM A"
+                className="w-full bg-black/60 border border-white/5 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all text-[11px] font-bold tracking-tight placeholder-slate-800"
+                placeholder="Team A"
               />
             </div>
             <div className="space-y-1">
               <label className="text-[6px] font-black text-emerald-500/60 uppercase tracking-widest px-1">VISITOR TEAM</label>
               <input 
                 value={team2} onChange={e => setTeam2(e.target.value)}
-                className="w-full bg-black/60 border border-white/5 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all text-[10px] font-bold tracking-widest uppercase placeholder-slate-800"
-                placeholder="TEAM B"
+                className="w-full bg-black/60 border border-white/5 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all text-[11px] font-bold tracking-tight placeholder-slate-800"
+                placeholder="Team B"
               />
             </div>
           </div>
@@ -89,8 +89,8 @@ const CreateMatch: React.FC<CreateMatchProps> = ({ onSubmit, onCancel }) => {
                   value={battingFirst} onChange={e => setBattingFirst(e.target.value)}
                   className="w-full bg-emerald-950/40 border border-emerald-500/20 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-[8px] font-black uppercase tracking-widest appearance-none cursor-pointer text-emerald-300"
                 >
-                  <option value="1" className="bg-slate-900 text-white">{team1 || 'TEAM 1'}</option>
-                  <option value="2" className="bg-slate-900 text-white">{team2 || 'TEAM 2'}</option>
+                  <option value="1" className="bg-slate-900 text-white">{team1 || 'Team 1'}</option>
+                  <option value="2" className="bg-slate-900 text-white">{team2 || 'Team 2'}</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-emerald-500/40 text-[7px]">
                   ▼

@@ -40,10 +40,10 @@ const App: React.FC = () => {
             Object.values(latestStates).forEach(row => {
               const id = row.MatchID || row.matchId;
               if (!existingIds.has(id)) {
-                const matchName = String(row.MatchName || row.matchName || "TEAM A vs TEAM B");
+                const matchName = String(row.MatchName || row.matchName || "Team A vs Team B");
                 const teams = matchName.split(" vs ");
-                const t1 = teams[0]?.trim() || "TEAM A";
-                const t2 = teams[1]?.trim() || "TEAM B";
+                const t1 = teams[0]?.trim() || "Team A";
+                const t2 = teams[1]?.trim() || "Team B";
                 
                 const scoreStr = String(row.Score || row.score || "0/0");
                 const scoreParts = scoreStr.split("/");
