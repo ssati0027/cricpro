@@ -279,9 +279,9 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
   const isCreaseReady = currentInnings.currentBatsmenNames.length === 2 && !!currentInnings.currentBowlerName;
 
   return (
-    <div className="flex flex-col gap-3 flex-1 h-full py-1 overflow-hidden">
+    <div className="flex flex-col gap-2 flex-1 h-full py-1 overflow-hidden">
       {/* Top Controls Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0 px-1 min-h-[48px]">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0 px-1 min-h-[44px]">
         <button 
           onClick={() => setShowPlayerModal('batsman')} 
           className={`py-2 rounded-xl text-[7px] font-bold uppercase tracking-widest border transition-all flex items-center justify-center text-center ${currentInnings.currentBatsmenNames.length < 2 ? 'bg-amber-900/40 border-amber-500/40 text-amber-400 animate-pulse' : 'bg-emerald-900/40 border-emerald-500/20 text-emerald-400'}`}
@@ -294,7 +294,7 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
           className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 active:scale-90 transition-all hover:bg-emerald-500/20"
           title="Swap Strike"
         >
-          <span className="text-lg">⇄</span>
+          <span className="text-base">⇄</span>
         </button>
 
         <button 
@@ -308,26 +308,25 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
       </div>
 
       {!isCreaseReady && match.status === 'live' && (
-        <div className="bg-amber-500/10 border border-amber-500/20 mx-1 p-2 rounded-xl text-center shrink-0">
-          <p className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">⚠️ CREASE NOT READY</p>
-          <p className="text-[7px] text-amber-500/60 uppercase mt-0.5">Please select batsmen and bowler to enable scoring</p>
+        <div className="bg-amber-500/10 border border-amber-500/20 mx-1 p-1 rounded-xl text-center shrink-0">
+          <p className="text-[8px] font-bold text-amber-500 uppercase tracking-widest">⚠️ CREASE NOT READY</p>
         </div>
       )}
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col gap-3 min-h-0 transition-opacity ${( !isCreaseReady || match.status !== 'live' ) ? 'opacity-30 pointer-events-none' : ''}`}>
+      <div className={`flex-1 flex flex-col gap-2 min-h-0 transition-opacity ${( !isCreaseReady || match.status !== 'live' ) ? 'opacity-30 pointer-events-none' : ''}`}>
         {/* Core Runs Grid */}
         <div className="grid grid-cols-4 gap-2 px-1 shrink-0">
           {[0, 1, 2, 3].map(r => (
-            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-slate-800/80 aspect-square rounded-2xl font-bebas text-2xl border border-white/5 shadow-xl transition-all active:scale-90 hover:bg-slate-700">{r}</button>
+            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-slate-800/80 aspect-[1.1] rounded-2xl font-bebas text-2xl border border-white/5 shadow-xl transition-all active:scale-90 hover:bg-slate-700">{r}</button>
           ))}
           {[4, 6].map(r => (
-            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-emerald-900/60 aspect-square rounded-2xl font-bebas text-2xl border border-emerald-500/30 text-emerald-400 shadow-xl transition-all active:scale-90 hover:bg-emerald-800/80">{r}</button>
+            <button key={r} onClick={() => validateAndAddBall({runs: r})} className="bg-emerald-900/60 aspect-[1.1] rounded-2xl font-bebas text-2xl border border-emerald-500/30 text-emerald-400 shadow-xl transition-all active:scale-90 hover:bg-emerald-800/80">{r}</button>
           ))}
-          <button onClick={() => setWicketModal(true)} className="bg-red-950/40 aspect-square rounded-2xl font-bebas text-2xl border border-red-500/30 text-red-500 shadow-xl active:scale-90 hover:bg-red-900/60">OUT</button>
+          <button onClick={() => setWicketModal(true)} className="bg-red-950/40 aspect-[1.1] rounded-2xl font-bebas text-2xl border border-red-500/30 text-red-500 shadow-xl active:scale-90 hover:bg-red-900/60">OUT</button>
           <button 
             onClick={() => { setOversInput(match.totalOvers.toString()); setShowOversModal(true); }} 
-            className="bg-slate-800/40 aspect-square rounded-2xl flex flex-col items-center justify-center border border-dashed border-slate-600 active:scale-95"
+            className="bg-slate-800/40 aspect-[1.1] rounded-2xl flex flex-col items-center justify-center border border-dashed border-slate-600 active:scale-95"
           >
              <span className="text-[6px] font-bold uppercase">Adjust</span>
              <span className="font-bebas text-xs">OVERS</span>
@@ -335,13 +334,13 @@ const ScoringPanel: React.FC<ScoringPanelProps> = ({ match, onUpdate }) => {
         </div>
 
         {/* Extras Registry */}
-        <div className="bg-black/40 p-4 rounded-2xl border border-white/5 mx-1 flex-1 flex flex-col justify-center min-h-0">
-           <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-slate-500 text-center mb-3">Extras Registry</p>
-           <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
-              <button onClick={() => setExtraRunSelector({type: 'wide'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner"><span className="text-[10px] font-bebas text-emerald-400 tracking-widest">WIDE</span></button>
-              <button onClick={() => setExtraRunSelector({type: 'noball'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner"><span className="text-[10px] font-bebas text-emerald-400 tracking-widest">NO BALL</span></button>
-              <button onClick={() => setExtraRunSelector({type: 'bye'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner"><span className="text-[10px] font-bebas text-emerald-400 tracking-widest">BYES</span></button>
-              <button onClick={() => setExtraRunSelector({type: 'legbye'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner"><span className="text-[10px] font-bebas text-emerald-400 tracking-widest">LEG BYES</span></button>
+        <div className="bg-black/40 p-3 rounded-2xl border border-white/5 mx-1 flex-1 flex flex-col justify-center min-h-0">
+           <p className="text-[7px] font-bold uppercase tracking-[0.3em] text-slate-500 text-center mb-2">Extras Registry</p>
+           <div className="grid grid-cols-2 gap-2 flex-1 min-h-0">
+              <button onClick={() => setExtraRunSelector({type: 'wide'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">WIDE</span></button>
+              <button onClick={() => setExtraRunSelector({type: 'noball'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">NO BALL</span></button>
+              <button onClick={() => setExtraRunSelector({type: 'bye'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">BYES</span></button>
+              <button onClick={() => setExtraRunSelector({type: 'legbye'})} className="bg-slate-800/60 rounded-xl flex flex-col items-center justify-center border border-white/5 hover:bg-emerald-900/40 transition-all shadow-inner py-2"><span className="text-[9px] font-bebas text-emerald-400 tracking-widest">LEG BYES</span></button>
            </div>
         </div>
       </div>

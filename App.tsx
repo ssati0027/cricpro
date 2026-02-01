@@ -40,7 +40,6 @@ const App: React.FC = () => {
             Object.values(latestStates).forEach(row => {
               const id = row.MatchID || row.matchId;
               if (!existingIds.has(id)) {
-                // Safely convert to string before splitting to avoid "split is not a function"
                 const matchName = String(row.MatchName || row.matchName || "TEAM A vs TEAM B");
                 const teams = matchName.split(" vs ");
                 const t1 = teams[0]?.trim() || "TEAM A";
@@ -158,14 +157,14 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col text-slate-100 bg-[#022c22] overflow-hidden">
+    <div className="h-[100dvh] flex flex-col text-slate-100 bg-[#022c22] overflow-hidden">
       <Header 
         onHome={() => { setView('home'); setState(p => ({ ...p, isScorer: false, currentMatchId: null })); }} 
         title={currentMatch ? `${currentMatch.team1} vs ${currentMatch.team2}` : "CRICSCORE PRO"} 
         syncStatus={syncStatus}
       />
       
-      <main className="flex-1 overflow-hidden p-3 flex flex-col gap-3">
+      <main className="flex-1 overflow-hidden p-2 sm:p-3 flex flex-col gap-2 sm:gap-3">
         {view === 'home' && (
           <div className="flex-1 overflow-y-auto max-w-4xl mx-auto w-full space-y-4">
             <div className="flex justify-between items-center px-1">
@@ -181,7 +180,7 @@ const App: React.FC = () => {
         {view === 'create' && <CreateMatch onSubmit={handleCreateMatch} onCancel={() => setView('home')} />}
 
         {view === 'match' && currentMatch && (
-          <div className="flex-1 flex flex-col gap-3 overflow-hidden max-w-2xl mx-auto w-full">
+          <div className="flex-1 flex flex-col gap-2 sm:gap-3 overflow-hidden max-w-2xl mx-auto w-full">
             <LiveScorecard match={currentMatch} onToggleScoreboard={() => setView('scoreboard')} />
             <div className="flex-1 flex flex-col overflow-hidden relative">
               {currentMatch.status === 'inningsBreak' && !state.isScorer && (
@@ -199,7 +198,7 @@ const App: React.FC = () => {
                 </div>
               )}
               {state.isScorer ? (
-                <div className="flex-1 flex flex-col overflow-hidden gap-3">
+                <div className="flex-1 flex flex-col overflow-hidden gap-2">
                   {currentMatch.status === 'inningsBreak' && (
                     <button onClick={startSecondInnings} className="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-xl">Start 2nd Innings</button>
                   )}
@@ -245,7 +244,7 @@ const App: React.FC = () => {
 
         {view === 'scoreboard' && currentMatch && (
           <div className="flex-1 flex flex-col overflow-hidden max-w-4xl mx-auto w-full">
-            <div className="flex items-center justify-between mb-4 px-1">
+            <div className="flex items-center justify-between mb-2 px-1">
               <button onClick={() => setView('match')} className="text-emerald-400 font-bold uppercase text-[10px] tracking-widest flex items-center gap-2">
                 <span>←</span> BACK
               </button>

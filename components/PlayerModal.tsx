@@ -20,26 +20,26 @@ const PlayerModal: React.FC<PlayerModalProps> = ({ type, existingPlayers, onSele
             <h3 className="text-base font-bebas text-emerald-400 tracking-wider uppercase leading-none">Select {type}</h3>
             <p className="text-[7px] text-slate-500 font-black uppercase tracking-widest mt-1">Squad selection</p>
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white text-lg">×</button>
+          <button onClick={onClose} className="text-slate-500 hover:text-white text-lg px-2">×</button>
         </div>
         
         <div className="p-4 space-y-4">
           {/* New Entry Input */}
           <div className="space-y-1.5">
             <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Add New Player</label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full">
               <input 
                 autoFocus
                 value={newName} 
                 onChange={e => setNewName(e.target.value)}
-                className="flex-1 bg-black/40 border border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none text-white placeholder-slate-700"
+                className="flex-1 min-w-0 bg-black/40 border border-slate-800 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-emerald-500 outline-none text-white placeholder-slate-700"
                 placeholder={`Type ${type} name...`}
                 onKeyDown={(e) => { if(e.key === 'Enter' && newName.trim()) onSelect(newName.trim()); }}
               />
               <button 
                 disabled={!newName.trim()}
                 onClick={() => { if(newName.trim()) onSelect(newName.trim()); }}
-                className="bg-emerald-600 disabled:opacity-50 px-3 rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-lg"
+                className="shrink-0 bg-emerald-600 disabled:opacity-50 px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-emerald-500 transition-all shadow-lg text-white"
               >
                 Add
               </button>

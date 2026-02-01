@@ -39,62 +39,61 @@ const LiveScorecard: React.FC<LiveScorecardProps> = ({ match, onToggleScoreboard
   const bowler = innings.bowlers.find(b => b.name === innings.currentBowlerName);
 
   return (
-    <div className="bg-gradient-to-br from-emerald-900/60 to-black/80 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md">
+    <div className="bg-gradient-to-br from-emerald-900/60 to-black/80 rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md shrink-0">
       {/* Top Banner */}
-      <div className="px-5 py-4 flex justify-between items-center border-b border-white/5 bg-white/5">
+      <div className="px-4 py-3 flex justify-between items-center border-b border-white/5 bg-white/5">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-             <span className="text-3xl font-bebas text-white leading-none">{innings.runs}/{innings.wickets}</span>
+          <div className="flex items-center gap-2">
+             <span className="text-2xl sm:text-3xl font-bebas text-white leading-none">{innings.runs}/{innings.wickets}</span>
              <span className="text-xs font-bebas text-emerald-400 mt-1">({overs}.{balls} OV)</span>
           </div>
           <div className="flex flex-col">
-            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em]">{innings.battingTeam} Batting • CRR: {rr}</p>
+            <p className="text-[7px] sm:text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em]">{innings.battingTeam} Batting • CRR: {rr}</p>
             {isSecondInnings && target !== null && (
-              <p className="text-[8px] font-bold text-amber-400 uppercase tracking-[0.2em] mt-0.5">
-                Target: {target} • Need {runsNeeded} from {ballsRemaining} balls (RRR: {rrr})
+              <p className="text-[7px] sm:text-[8px] font-bold text-amber-400 uppercase tracking-[0.2em] mt-0.5">
+                Target: {target} • Need {runsNeeded} ({ballsRemaining}b)
               </p>
             )}
           </div>
         </div>
-        <button onClick={onToggleScoreboard} className="bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">Card</button>
+        <button onClick={onToggleScoreboard} className="bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-[8px] font-bold uppercase tracking-widest text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all">Card</button>
       </div>
 
       {/* Crease Stats */}
-      <div className="p-5 grid grid-cols-2 gap-4">
+      <div className="px-4 py-3 grid grid-cols-2 gap-4">
         {/* Batting Side */}
-        <div className="space-y-2">
+        <div className="space-y-1">
            {[batter1, batter2].map((b, i) => (
              <div key={i} className={`flex justify-between items-center ${i === 1 ? 'opacity-40' : ''}`}>
-               <span className="text-xs font-bold text-white truncate max-w-[80px]">{b?.name || '--'}{i === 0 ? '*' : ''}</span>
-               <span className="text-sm font-bebas text-emerald-400 tracking-wide">{b?.runs || 0}<span className="text-[10px] font-sans ml-1 text-slate-500">({b?.balls || 0})</span></span>
+               <span className="text-[10px] sm:text-xs font-bold text-white truncate max-w-[70px]">{b?.name || '--'}{i === 0 ? '*' : ''}</span>
+               <span className="text-xs sm:text-sm font-bebas text-emerald-400 tracking-wide">{b?.runs || 0}<span className="text-[8px] font-sans ml-1 text-slate-500">({b?.balls || 0})</span></span>
              </div>
            ))}
         </div>
 
         {/* Bowling Side */}
         <div className="flex flex-col justify-center border-l border-white/5 pl-4">
-          <p className="text-[7px] font-bold text-slate-600 uppercase tracking-widest mb-1">Current Bowler</p>
+          <p className="text-[6px] font-bold text-slate-600 uppercase tracking-widest mb-0.5">Bowler</p>
           <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-slate-300">{bowler?.name || '--'}</span>
-            <span className="text-sm font-bebas text-emerald-400">{bowler?.overs || 0}.{bowler ? (bowler.balls % 6) : 0}-{bowler?.wickets || 0}</span>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-300 truncate max-w-[70px]">{bowler?.name || '--'}</span>
+            <span className="text-xs sm:text-sm font-bebas text-emerald-400">{bowler?.overs || 0}.{bowler ? (bowler.balls % 6) : 0}-{bowler?.wickets || 0}</span>
           </div>
         </div>
       </div>
 
       {/* History Reel */}
-      <div className="bg-black/40 px-5 py-3 flex items-center gap-4 border-t border-white/5">
-        <span className="text-[7px] font-bold text-slate-500 uppercase tracking-widest shrink-0">Recent:</span>
-        <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-1">
-           {/* CRITICAL: Filter out manual strike swaps so they don't appear as '0' runs */}
+      <div className="bg-black/40 px-4 py-2 flex items-center gap-3 border-t border-white/5">
+        <span className="text-[6px] font-bold text-slate-500 uppercase tracking-widest shrink-0">Recent:</span>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
            {innings.ballByBall
             .filter(b => !b.manualStrikeRotate)
-            .slice(-12)
+            .slice(-10)
             .map((b) => (
-             <div key={b.ballId} className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold border ${b.isWicket ? 'bg-red-600 border-red-400 text-white' : b.runs >= 4 ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-slate-800 border-white/10 text-slate-400'}`}>
+             <div key={b.ballId} className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[9px] font-bold border ${b.isWicket ? 'bg-red-600 border-red-400 text-white' : b.runs >= 4 ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-slate-800 border-white/10 text-slate-400'}`}>
                {getBallLabel(b)}
              </div>
            ))}
-           {innings.ballByBall.filter(b => !b.manualStrikeRotate).length === 0 && <span className="text-[8px] text-slate-700 font-bold uppercase">First ball pending...</span>}
+           {innings.ballByBall.filter(b => !b.manualStrikeRotate).length === 0 && <span className="text-[7px] text-slate-700 font-bold uppercase">Ready...</span>}
         </div>
       </div>
     </div>
