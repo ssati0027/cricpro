@@ -1,0 +1,7 @@
+{
+  "name": "Copy of CricScore Pro V1",
+  "description": "A professional-grade cricket scoring application with real-time updates, password-protected scoring, strike rotation logic, and AI-powered match commentary using Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
