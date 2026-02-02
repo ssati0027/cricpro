@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Match, AppState, Innings } from './types';
+import { Match, AppState, Innings, BallRecord } from './types';
 import Header from './components/Header';
 import MatchList from './components/MatchList';
 import CreateMatch from './components/CreateMatch';
@@ -27,59 +27,93 @@ const App: React.FC = () => {
         const sheetData = await fetchFromGoogleSheets();
         if (sheetData && sheetData.length > 0) {
           setState(prev => {
-            const existingMatches = [...prev.matches];
-            const existingIds = new Set(existingMatches.map(m => m.id));
-            const matchesToUpdate: Match[] = [];
+            // Use a Map for easy deduplication by ID
+            const mergedMatches = new Map<string, Match>();
             
-            const latestStates: Record<string, any> = {};
+            // 1. Add existing local matches first
+            prev.matches.forEach(m => mergedMatches.set(m.id, m));
+
+            // 2. Process sheet data and overwrite or add new matches
             sheetData.forEach(row => {
-              const id = row.MatchID || row.matchId;
-              if (id) latestStates[id] = row;
-            });
+              const id = String(row.MatchID || row.matchId);
+              if (!id) return;
 
-            Object.values(latestStates).forEach(row => {
-              const id = row.MatchID || row.matchId;
-              if (!existingIds.has(id)) {
-                const matchName = String(row.MatchName || row.matchName || "Team A vs Team B");
-                const teams = matchName.split(" vs ");
-                const t1 = teams[0]?.trim() || "Team A";
-                const t2 = teams[1]?.trim() || "Team B";
-                
-                const scoreStr = String(row.Score || row.score || "0/0");
-                const scoreParts = scoreStr.split("/");
-                
-                const innNumStr = String(row.Innings || row.inningsNum || "1");
-                const innNum = parseInt(innNumStr) || 1;
-                
-                const batsmenStr = String(row.Batsmen || row.batsmen || "");
-                const statusStr = String(row.Status || row.status || 'completed').toLowerCase();
-                const bowlerStr = row.Bowler || row.bowler || null;
-                const battingTeamStr = String(row.BattingTeam || row.battingTeam || t1);
+              const matchName = String(row.MatchName || row.matchName || "Team A vs Team B");
+              const teams = matchName.split(" vs ");
+              const t1 = teams[0]?.trim() || "Team A";
+              const t2 = teams[1]?.trim() || "Team B";
+              
+              const scoreStr = String(row.Score || row.score || "0/0");
+              const [runs, wickets] = scoreStr.split("/").map(v => parseInt(v) || 0);
+              
+              const overStr = String(row.Overs || row.overs || "0.0");
+              const [oPart, bPart] = overStr.split(".").map(v => parseInt(v) || 0);
+              const totalBalls = (oPart * 6) + bPart;
 
-                matchesToUpdate.push({
-                  id: String(id),
+              const innNum = parseInt(String(row.Innings || row.inningsNum || "1")) || 1;
+              const statusStr = String(row.Status || row.status || 'live').toLowerCase() as any;
+              const batsmenStr = String(row.Batsmen || row.batsmen || "");
+              const bowlerStr = row.Bowler || row.bowler || null;
+              const battingTeamStr = String(row.BattingTeam || row.battingTeam || t1);
+
+              // If match exists locally, update its live state from the sheet
+              const existingMatch = mergedMatches.get(id);
+              if (existingMatch) {
+                const updatedMatch = { ...existingMatch };
+                updatedMatch.status = statusStr;
+                updatedMatch.currentInnings = innNum as 1 | 2;
+                
+                const innIdx = innNum - 1;
+                if (updatedMatch.innings[innIdx]) {
+                  updatedMatch.innings[innIdx]!.runs = runs;
+                  updatedMatch.innings[innIdx]!.wickets = wickets;
+                  updatedMatch.innings[innIdx]!.balls = totalBalls;
+                  updatedMatch.innings[innIdx]!.battingTeam = battingTeamStr;
+                  updatedMatch.innings[innIdx]!.currentBatsmenNames = batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [];
+                  updatedMatch.innings[innIdx]!.currentBowlerName = bowlerStr ? String(bowlerStr) : null;
+                }
+                mergedMatches.set(id, updatedMatch);
+              } else {
+                // Otherwise, create a new skeleton match from sheet data
+                const newMatch: Match = {
+                  id,
                   team1: t1,
                   team2: t2,
-                  totalOvers: 5,
-                  password: 'password', 
-                  status: statusStr as any,
-                  currentInnings: (innNum === 2 ? 2 : 1) as 1 | 2,
-                  innings: [{
-                    battingTeam: battingTeamStr,
-                    bowlingTeam: battingTeamStr === t1 ? t2 : t1,
-                    runs: parseInt(scoreParts[0]) || 0,
-                    wickets: parseInt(scoreParts[1]) || 0,
-                    balls: 0, extras: 0, batsmen: [], bowlers: [], 
-                    currentBatsmenNames: batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [],
-                    currentBowlerName: bowlerStr ? String(bowlerStr) : null, 
-                    ballByBall: [], currentOverBalls: []
-                  }, null],
+                  totalOvers: 5, // Default if not in sheet
+                  password: 'password', // Default fallback
+                  status: statusStr,
+                  currentInnings: innNum as 1 | 2,
+                  innings: [
+                    {
+                      battingTeam: innNum === 1 ? battingTeamStr : (battingTeamStr === t1 ? t2 : t1),
+                      bowlingTeam: innNum === 1 ? (battingTeamStr === t1 ? t2 : t1) : battingTeamStr,
+                      runs: innNum === 1 ? runs : 0, // Simplified: assumes sheet always refers to "current"
+                      wickets: innNum === 1 ? wickets : 0,
+                      balls: innNum === 1 ? totalBalls : 0,
+                      extras: 0, batsmen: [], bowlers: [], 
+                      currentBatsmenNames: innNum === 1 && batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [],
+                      currentBowlerName: innNum === 1 && bowlerStr ? String(bowlerStr) : null, 
+                      ballByBall: [], currentOverBalls: []
+                    },
+                    innNum === 2 ? {
+                      battingTeam: battingTeamStr,
+                      bowlingTeam: battingTeamStr === t1 ? t2 : t1,
+                      runs: runs,
+                      wickets: wickets,
+                      balls: totalBalls,
+                      extras: 0, batsmen: [], bowlers: [], 
+                      currentBatsmenNames: batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [],
+                      currentBowlerName: bowlerStr ? String(bowlerStr) : null, 
+                      ballByBall: [], currentOverBalls: []
+                    } : null
+                  ],
                   allPlayers: { [t1]: [], [t2]: [] }
-                });
+                };
+                mergedMatches.set(id, newMatch);
               }
             });
 
-            return { ...prev, matches: [...existingMatches, ...matchesToUpdate] };
+            return { ...prev, matches: Array.from(mergedMatches.values()) };
           });
         }
         setSyncStatus('Online');
@@ -98,7 +132,7 @@ const App: React.FC = () => {
   const currentMatch = state.matches.find(m => m.id === state.currentMatchId);
 
   useEffect(() => {
-    if (currentMatch && state.isScorer) {
+    if (currentMatch && state.isScorer && currentMatch.status !== 'completed') {
       const performSync = async () => {
         setSyncStatus('Syncing...');
         const success = await syncToGoogleSheets(currentMatch);
