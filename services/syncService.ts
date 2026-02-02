@@ -1,44 +1,26 @@
 
 import { Match, Innings } from "../types";
 
-/**
- * IMPORTANT: Ensure your Google Apps Script is deployed with these settings:
- * 1. Execute as: Me
- * 2. Who has access: Anyone (This is the most common cause of "Failed to fetch")
- */
 const SYNC_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwMtn3tZCyaxjiYLyTLe9CKQOqxGDgupQJJ1-5MQzNqYH3v_hGT217PBOyQQj5n9l1iJw/exec"; 
 
 export async function fetchFromGoogleSheets(): Promise<any[]> {
   if (!SYNC_WEB_APP_URL) return [];
   try {
-    console.log("CRICSCORE_SYNC: Attempting to fetch from", SYNC_WEB_APP_URL);
-    
-    // Using a simple fetch. If this fails with "Failed to fetch", the script 
-    // is likely NOT deployed as "Anyone" or the URL is restricted.
     const response = await fetch(`${SYNC_WEB_APP_URL}?t=${Date.now()}`, {
       method: 'GET',
-      mode: 'cors', // Apps Script supports CORS for GET if deployed as 'Anyone'
-      headers: {
-        'Accept': 'application/json',
-      },
+      mode: 'cors',
+      headers: { 'Accept': 'application/json' },
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-    }
+    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
     const data = await response.json();
-    
-    if (data.error) {
-      console.error("CRICSCORE_SHEET_ERROR:", data.error);
-      return [];
-    }
-
-    return Array.isArray(data) ? data : [];
+    // Google Sheets might return data nested in an object depending on the script
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object' && Array.isArray(data.data)) return data.data;
+    return [];
   } catch (e: any) {
-    // If you see "TypeError: Failed to fetch", it's almost certainly a deployment permission issue.
-    console.error("CRICSCORE_LOAD_ERROR: Connection failed.", e.message);
-    console.warn("Checklist:\n1. Open Apps Script\n2. Deploy -> New Deployment\n3. Set 'Who has access' to 'Anyone'\n4. Use the NEW URL generated.");
+    console.error("CRICSCORE_LOAD_ERROR:", e.message);
     return [];
   }
 }
@@ -46,22 +28,30 @@ export async function fetchFromGoogleSheets(): Promise<any[]> {
 export async function syncToGoogleSheets(match: Match): Promise<boolean> {
   if (!SYNC_WEB_APP_URL) return true;
 
-  const innIdx = match.currentInnings - 1;
-  const currentInnings = match.innings[innIdx] as Innings;
-  if (!currentInnings) return false;
+  const inn1 = match.innings[0];
+  const inn2 = match.innings[1];
+  const currentInn = match.currentInnings === 1 ? inn1 : (inn2 || inn1);
+  
+  const b1 = currentInn.currentBatsmenNames[0] || "N/A";
+  const b2 = currentInn.currentBatsmenNames[1] || "N/A";
+  const bowler = currentInn.currentBowlerName || "N/A";
 
-  const b1 = currentInnings.currentBatsmenNames[0] || "N/A";
-  const b2 = currentInnings.currentBatsmenNames[1] || "N/A";
-  const bowler = currentInnings.currentBowlerName || "N/A";
-
+  // Using redundant keys to ensure the GAS script finds what it needs
   const payload = {
-    matchId: match.id,
+    matchId: String(match.id),
+    MatchID: String(match.id),
+    matchName: `${match.team1} vs ${match.team2}`,
     team1: match.team1,
     team2: match.team2,
     inningsNum: match.currentInnings,
-    battingTeam: currentInnings.battingTeam,
-    score: `${currentInnings.runs}/${currentInnings.wickets}`,
-    overs: `${Math.floor(currentInnings.balls / 6)}.${currentInnings.balls % 6}`,
+    battingTeam: currentInn.battingTeam,
+    score: `${currentInn.runs}/${currentInn.wickets}`,
+    overs: `${Math.floor(currentInn.balls / 6)}.${currentInn.balls % 6}`,
+    // Explicit innings data
+    inn1Score: `${inn1.runs}/${inn1.wickets}`,
+    inn1Overs: `${Math.floor(inn1.balls / 6)}.${inn1.balls % 6}`,
+    inn2Score: inn2 ? `${inn2.runs}/${inn2.wickets}` : "N/A",
+    inn2Overs: inn2 ? `${Math.floor(inn2.balls / 6)}.${inn2.balls % 6}` : "N/A",
     batsmen: `${b1}*, ${b2}`,
     bowler: bowler,
     status: match.status,
@@ -69,9 +59,8 @@ export async function syncToGoogleSheets(match: Match): Promise<boolean> {
   };
 
   try {
-    // mode: 'no-cors' is required for POSTing to Apps Script because it returns a 302 redirect
-    // which the browser blocks under standard CORS rules for POST. 
-    // Data still reaches the server if deployed as 'Anyone'.
+    // We use no-cors to avoid the redirect error common with Google Apps Scripts,
+    // but the data still gets sent to the server.
     await fetch(SYNC_WEB_APP_URL, {
       method: "POST",
       mode: 'no-cors', 
@@ -83,14 +72,4 @@ export async function syncToGoogleSheets(match: Match): Promise<boolean> {
     console.error("CRICSCORE_SYNC_ERROR:", e);
     return false;
   }
-}
-
-export function exportMatchData(match: Match) {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(match));
-  const downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", `match_${match.id}.json`);
-  document.body.appendChild(downloadAnchorNode);
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
 }

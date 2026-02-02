@@ -16,12 +16,21 @@ const MatchList: React.FC<MatchListProps> = ({ matches, onSelect }) => {
     );
   }
 
+  // Sort by ID or status to show live matches first
+  const sortedMatches = [...matches].sort((a, b) => {
+    if (a.status === 'live' && b.status !== 'live') return -1;
+    if (a.status !== 'live' && b.status === 'live') return 1;
+    return 0;
+  });
+
   return (
-    <div className="grid grid-cols-1 gap-3">
-      {matches.map(match => {
+    <div className="grid grid-cols-1 gap-3 pb-8">
+      {sortedMatches.map(match => {
         const inn1 = match.innings[0];
         const inn2 = match.innings[1];
         
+        if (!inn1) return null;
+
         return (
           <div 
             key={match.id}
@@ -32,7 +41,7 @@ const MatchList: React.FC<MatchListProps> = ({ matches, onSelect }) => {
               <span className={`text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border ${match.status === 'live' ? 'bg-red-500/10 border-red-500/20 text-red-500 animate-pulse' : 'bg-slate-800 text-slate-500'}`}>
                 {match.status}
               </span>
-              <span className="text-[9px] text-slate-600 font-bold">MATCH ID: {match.id.slice(-6)}</span>
+              <span className="text-[9px] text-slate-600 font-bold">MATCH ID: {String(match.id).slice(-6)}</span>
             </div>
             
             <div className="flex justify-between items-end gap-4">

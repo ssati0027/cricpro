@@ -19,6 +19,32 @@ const App: React.FC = () => {
   const [authError, setAuthError] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<string>('Ready');
 
+  // Helper: Get property from object regardless of casing
+  const getVal = (obj: any, ...keys: string[]) => {
+    for (const key of keys) {
+      if (obj[key] !== undefined) return obj[key];
+      // Check lowercase version
+      if (obj[key.toLowerCase()] !== undefined) return obj[key.toLowerCase()];
+      // Check uppercase version
+      if (obj[key.toUpperCase()] !== undefined) return obj[key.toUpperCase()];
+    }
+    return undefined;
+  };
+
+  const parseOversToBalls = (overStr: any): number => {
+    const normalized = String(overStr || "0.0").trim();
+    if (normalized === "N/A" || normalized === "") return 0;
+    const [overs, balls] = normalized.includes('.') ? normalized.split('.') : [normalized, '0'];
+    return (parseInt(overs) || 0) * 6 + (parseInt(balls) || 0);
+  };
+
+  const parseScore = (scoreStr: any): [number, number] => {
+    const normalized = String(scoreStr || "0/0").trim();
+    if (normalized === "N/A" || normalized === "") return [0, 0];
+    const parts = normalized.split("/");
+    return [parseInt(parts[0]) || 0, parseInt(parts[1]) || 0];
+  };
+
   // Load from Sheets on Mount
   useEffect(() => {
     const loadFromSheets = async () => {
@@ -27,93 +53,110 @@ const App: React.FC = () => {
         const sheetData = await fetchFromGoogleSheets();
         if (sheetData && sheetData.length > 0) {
           setState(prev => {
-            // Use a Map for easy deduplication by ID
-            const mergedMatches = new Map<string, Match>();
+            const mergedMap = new Map<string, Match>();
             
-            // 1. Add existing local matches first
-            prev.matches.forEach(m => mergedMatches.set(m.id, m));
+            // 1. Initial Load from Local State
+            prev.matches.forEach(m => {
+              const cleanId = String(m.id).trim();
+              mergedMap.set(cleanId, m);
+            });
 
-            // 2. Process sheet data and overwrite or add new matches
+            // 2. Overwrite/Add from Sheet Data
             sheetData.forEach(row => {
-              const id = String(row.MatchID || row.matchId);
-              if (!id) return;
+              const rawId = getVal(row, 'matchId', 'MatchID', 'ID');
+              if (!rawId) return;
+              const id = String(rawId).trim();
 
-              const matchName = String(row.MatchName || row.matchName || "Team A vs Team B");
-              const teams = matchName.split(" vs ");
-              const t1 = teams[0]?.trim() || "Team A";
-              const t2 = teams[1]?.trim() || "Team B";
+              const team1 = String(getVal(row, 'team1', 'Team1') || "Team 1");
+              const team2 = String(getVal(row, 'team2', 'Team2') || "Team 2");
+              const status = String(getVal(row, 'status', 'Status') || 'live').toLowerCase() as any;
+              const innNum = parseInt(String(getVal(row, 'inningsNum', 'Innings', 'InningsNum') || "1")) || 1;
               
-              const scoreStr = String(row.Score || row.score || "0/0");
-              const [runs, wickets] = scoreStr.split("/").map(v => parseInt(v) || 0);
+              const currentScoreStr = getVal(row, 'score', 'Score');
+              const currentOversStr = getVal(row, 'overs', 'Overs');
               
-              const overStr = String(row.Overs || row.overs || "0.0");
-              const [oPart, bPart] = overStr.split(".").map(v => parseInt(v) || 0);
-              const totalBalls = (oPart * 6) + bPart;
+              const inn1ScoreStr = getVal(row, 'inn1Score', 'Inn1Score');
+              const inn1OversStr = getVal(row, 'inn1Overs', 'Inn1Overs');
+              
+              const inn2ScoreStr = getVal(row, 'inn2Score', 'Inn2Score');
+              const inn2OversStr = getVal(row, 'inn2Overs', 'Inn2Overs');
 
-              const innNum = parseInt(String(row.Innings || row.inningsNum || "1")) || 1;
-              const statusStr = String(row.Status || row.status || 'live').toLowerCase() as any;
-              const batsmenStr = String(row.Batsmen || row.batsmen || "");
-              const bowlerStr = row.Bowler || row.bowler || null;
-              const battingTeamStr = String(row.BattingTeam || row.battingTeam || t1);
+              const [i1Runs, i1Wickets] = parseScore(inn1ScoreStr || (innNum === 1 ? currentScoreStr : "0/0"));
+              const i1Balls = parseOversToBalls(inn1OversStr || (innNum === 1 ? currentOversStr : "0.0"));
 
-              // If match exists locally, update its live state from the sheet
-              const existingMatch = mergedMatches.get(id);
+              const hasInn2 = (inn2ScoreStr && inn2ScoreStr !== "N/A") || (innNum === 2);
+              const [i2Runs, i2Wickets] = parseScore(inn2ScoreStr || (innNum === 2 ? currentScoreStr : "0/0"));
+              const i2Balls = parseOversToBalls(inn2OversStr || (innNum === 2 ? currentOversStr : "0.0"));
+
+              const batsmenStr = String(getVal(row, 'batsmen', 'Batsmen') || "");
+              const currentBatsmen = batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [];
+              const currentBowler = getVal(row, 'bowler', 'Bowler') || null;
+
+              const existingMatch = mergedMap.get(id);
+
               if (existingMatch) {
-                const updatedMatch = { ...existingMatch };
-                updatedMatch.status = statusStr;
-                updatedMatch.currentInnings = innNum as 1 | 2;
+                // UPDATE: Update critical stats from Cloud
+                const updated = { ...existingMatch, status, currentInnings: (innNum as 1 | 2) };
                 
-                const innIdx = innNum - 1;
-                if (updatedMatch.innings[innIdx]) {
-                  updatedMatch.innings[innIdx]!.runs = runs;
-                  updatedMatch.innings[innIdx]!.wickets = wickets;
-                  updatedMatch.innings[innIdx]!.balls = totalBalls;
-                  updatedMatch.innings[innIdx]!.battingTeam = battingTeamStr;
-                  updatedMatch.innings[innIdx]!.currentBatsmenNames = batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [];
-                  updatedMatch.innings[innIdx]!.currentBowlerName = bowlerStr ? String(bowlerStr) : null;
+                // Refresh Innings 1
+                updated.innings[0]!.runs = i1Runs;
+                updated.innings[0]!.wickets = i1Wickets;
+                updated.innings[0]!.balls = i1Balls;
+
+                // Refresh Innings 2 if relevant
+                if (hasInn2) {
+                  if (!updated.innings[1]) {
+                    updated.innings[1] = {
+                      battingTeam: updated.innings[0]!.bowlingTeam,
+                      bowlingTeam: updated.innings[0]!.battingTeam,
+                      runs: i2Runs, wickets: i2Wickets, balls: i2Balls, extras: 0,
+                      batsmen: [], bowlers: [], currentBatsmenNames: [], currentBowlerName: null,
+                      ballByBall: [], currentOverBalls: []
+                    };
+                  } else {
+                    updated.innings[1]!.runs = i2Runs;
+                    updated.innings[1]!.wickets = i2Wickets;
+                    updated.innings[1]!.balls = i2Balls;
+                  }
                 }
-                mergedMatches.set(id, updatedMatch);
+
+                // Update current players
+                const targetInn = updated.innings[innNum - 1];
+                if (targetInn) {
+                  targetInn.currentBatsmenNames = currentBatsmen;
+                  targetInn.currentBowlerName = currentBowler ? String(currentBowler) : null;
+                }
+
+                mergedMap.set(id, updated);
               } else {
-                // Otherwise, create a new skeleton match from sheet data
+                // CREATE: New skeleton for viewer
                 const newMatch: Match = {
-                  id,
-                  team1: t1,
-                  team2: t2,
-                  totalOvers: 5, // Default if not in sheet
-                  password: 'password', // Default fallback
-                  status: statusStr,
+                  id, team1, team2, status,
+                  totalOvers: 5, password: 'password',
                   currentInnings: innNum as 1 | 2,
                   innings: [
                     {
-                      battingTeam: innNum === 1 ? battingTeamStr : (battingTeamStr === t1 ? t2 : t1),
-                      bowlingTeam: innNum === 1 ? (battingTeamStr === t1 ? t2 : t1) : battingTeamStr,
-                      runs: innNum === 1 ? runs : 0, // Simplified: assumes sheet always refers to "current"
-                      wickets: innNum === 1 ? wickets : 0,
-                      balls: innNum === 1 ? totalBalls : 0,
-                      extras: 0, batsmen: [], bowlers: [], 
-                      currentBatsmenNames: innNum === 1 && batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [],
-                      currentBowlerName: innNum === 1 && bowlerStr ? String(bowlerStr) : null, 
+                      battingTeam: team1, bowlingTeam: team2,
+                      runs: i1Runs, wickets: i1Wickets, balls: i1Balls, extras: 0,
+                      batsmen: [], bowlers: [], currentBatsmenNames: innNum === 1 ? currentBatsmen : [],
+                      currentBowlerName: (innNum === 1 && currentBowler) ? String(currentBowler) : null,
                       ballByBall: [], currentOverBalls: []
                     },
-                    innNum === 2 ? {
-                      battingTeam: battingTeamStr,
-                      bowlingTeam: battingTeamStr === t1 ? t2 : t1,
-                      runs: runs,
-                      wickets: wickets,
-                      balls: totalBalls,
-                      extras: 0, batsmen: [], bowlers: [], 
-                      currentBatsmenNames: batsmenStr ? batsmenStr.split(", ").map(s => s.replace('*', '').trim()) : [],
-                      currentBowlerName: bowlerStr ? String(bowlerStr) : null, 
+                    hasInn2 ? {
+                      battingTeam: team2, bowlingTeam: team1,
+                      runs: i2Runs, wickets: i2Wickets, balls: i2Balls, extras: 0,
+                      batsmen: [], bowlers: [], currentBatsmenNames: innNum === 2 ? currentBatsmen : [],
+                      currentBowlerName: (innNum === 2 && currentBowler) ? String(currentBowler) : null,
                       ballByBall: [], currentOverBalls: []
                     } : null
                   ],
-                  allPlayers: { [t1]: [], [t2]: [] }
+                  allPlayers: { [team1]: [], [team2]: [] }
                 };
-                mergedMatches.set(id, newMatch);
+                mergedMap.set(id, newMatch);
               }
             });
 
-            return { ...prev, matches: Array.from(mergedMatches.values()) };
+            return { ...prev, matches: Array.from(mergedMap.values()) };
           });
         }
         setSyncStatus('Online');
@@ -129,7 +172,7 @@ const App: React.FC = () => {
     localStorage.setItem('cricscore_v2_data', JSON.stringify(state));
   }, [state]);
 
-  const currentMatch = state.matches.find(m => m.id === state.currentMatchId);
+  const currentMatch = state.matches.find(m => String(m.id).trim() === String(state.currentMatchId).trim());
 
   useEffect(() => {
     if (currentMatch && state.isScorer && currentMatch.status !== 'completed') {
@@ -159,7 +202,7 @@ const App: React.FC = () => {
   };
 
   const handleBecomeScorer = (password: string) => {
-    const match = state.matches.find(m => m.id === state.currentMatchId);
+    const match = state.matches.find(m => String(m.id).trim() === String(state.currentMatchId).trim());
     if (match && match.password === password) {
       setState(prev => ({ ...prev, isScorer: true }));
       setAuthError(null);
@@ -171,7 +214,7 @@ const App: React.FC = () => {
   const updateMatchState = useCallback((updatedMatch: Match) => {
     setState(prev => ({
       ...prev,
-      matches: prev.matches.map(m => m.id === updatedMatch.id ? updatedMatch : m)
+      matches: prev.matches.map(m => String(m.id).trim() === String(updatedMatch.id).trim() ? updatedMatch : m)
     }));
   }, []);
 
